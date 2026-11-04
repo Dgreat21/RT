@@ -46,8 +46,13 @@
 ** Sdl gui
 */
 
-# define RT_WIN_ID 1
-# define GUI_WIN_ID 2
+/*
+**	Window ids must be queried: SDL3 (Homebrew `sdl2` is sdl2-compat) shares
+**	one id counter between displays and windows, so they are not 1 and 2.
+*/
+
+# define RT_WIN_ID SDL_GetWindowID(g_sdl.win)
+# define GUI_WIN_ID SDL_GetWindowID(g_gui.win_tool)
 
 # define BMP 1
 # define JPG 2
@@ -132,16 +137,25 @@
 
 # define PANEL_BUTTON_WIDTH (PANEL_WIDTH - PANEL_BORDER * 2) / 3
 # define TEXT_WIDTH (PANEL_WIDTH - PANEL_BORDER * 2)
-# define OPTIONS_BLOCK PANEL_Y + 60 + 6 * BTN_DEFAULT_SIZE
+# define OPTIONS_BLOCK (PANEL_Y + 60 + 6 * BTN_DEFAULT_SIZE)
 # define FIRST_COL_X 0
 # define SECOND_COL_X WIN_GUI_WIDTH / 2
 # define HALF_GUI WIN_GUI_WIDTH / 2
+
+/*
+**	Option buttons are BTN_BIG_SIZE tall when the tools window is WIN_HEIGHT
+**	tall. On a smaller screen the window is shorter (see sdl_init.c), so the
+**	rows shrink to leave room for the screenshot button (init_gui_layout).
+*/
+
+# define OPTION_ROWS 5
+# define OPTION_ROW_H g_gui.option_row_h
 # define MSH_Y OPTIONS_BLOCK
-# define OBJ_Y MSH_Y  + BTN_BIG_SIZE
-# define TEXTURE_Y OBJ_Y + BTN_BIG_SIZE
-# define ANTI_AL_Y TEXTURE_Y + BTN_BIG_SIZE
-# define SKYBOX_Y ANTI_AL_Y + BTN_BIG_SIZE
-# define BACKFACE_C_Y SKYBOX_Y + BTN_BIG_SIZE
+# define OBJ_Y MSH_Y  + OPTION_ROW_H
+# define TEXTURE_Y OBJ_Y + OPTION_ROW_H
+# define ANTI_AL_Y TEXTURE_Y + OPTION_ROW_H
+# define SKYBOX_Y ANTI_AL_Y + OPTION_ROW_H
+# define BACKFACE_C_Y SKYBOX_Y + OPTION_ROW_H
 # define IMP_Y MSH_Y
 # define DOF_Y OBJ_Y
 # define SEPIA_Y TEXTURE_Y

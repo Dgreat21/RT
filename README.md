@@ -2,6 +2,35 @@
 
 Github can't upload screenshots properly, so you can see them [here](https://github.com/rearming/RT/tree/master/screenshots)
 
+## Сборка и запуск на macOS (Apple Silicon M1–M4)
+
+Сборка нативная (arm64), Rosetta не нужна.
+
+1. Инструменты командной строки Xcode и зависимости из Homebrew:
+   ```bash
+   xcode-select --install
+   brew install sdl2 sdl2_ttf cmake git-lfs
+   ```
+   (`sdl2` в Homebrew — это `sdl2-compat`, слой SDL2 API поверх SDL3; OpenCL берётся из системного `OpenCL.framework`.)
+2. Клонировать вместе с подмодулями (libft, jansson, textures) и LFS-файлами:
+   ```bash
+   git clone --recursive https://github.com/Dgreat21/RT.git && cd RT && git lfs pull
+   ```
+3. Собрать: `make` (если более новый компилятор выдаст новое предупреждение — `make WERROR=`).
+4. Запускать **из корня репозитория** (пути к ядрам и ассетам относительные):
+   ```bash
+   ./RT scenes/cornell_box.json
+   ```
+
+Первый запуск сцены компилирует OpenCL-ядра (может занять десятки секунд), бинарники кешируются в `oclbins/`.
+Ключ кеша — только опции компиляции, поэтому после правки `.cl`-файлов удаляйте `oclbins/`.
+
+Альтернатива через CMake: `./compile.sh && cmake -S . -B build && cmake --build build` (нужен ещё `brew install pkgconf`).
+
+Фреймворки в `lib/SDL2_libs` собраны только под x86_64 и на Apple Silicon не используются
+(Makefile берёт их лишь как запасной вариант на Intel Mac без Homebrew SDL2).
+
+
 ![](/screenshots/qADw7VMNr44.jpg)
 
 ![](https://trello-attachments.s3.amazonaws.com/5e30819c83dc7b450f840e53/5e9be670859cd08b3974c0bb/10796989368d9572fc944ff38730651f/rsz_screen_shot_2020-02-25_at_200442-min.png)

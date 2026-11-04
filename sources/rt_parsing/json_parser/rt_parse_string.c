@@ -99,7 +99,7 @@ static void		parse_string2(t_tmp *tmp, const char *key,
 	}
 	else if (ft_strequ(key, "directory"))
 	{
-		g_textures.folders_names = rt_safe_malloc(1);
+		g_textures.folders_names = rt_safe_malloc(sizeof(char *) * 2);
 		g_textures.folders_names[0] = ft_strdup(tmp_value);
 		g_textures.folders_names[1] = NULL;
 	}

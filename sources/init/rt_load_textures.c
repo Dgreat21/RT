@@ -95,6 +95,7 @@ void		rt_textures_init(void)
 	int		i;
 	char	*tmp_filename;
 	float	*tmp_texture;
+	t_name	*next_name;
 
 	i = init_basic_textures_parameters();
 	while (++i < (int)g_textures.texture_info_size)
@@ -112,9 +113,10 @@ void		rt_textures_init(void)
 		free(tmp_texture);
 		if (g_textures.texture_list == NULL)
 			return (rt_raise_error(ERR_INVALID_TEXTURE));
+		next_name = g_textures.textures_names->next;
 		free(g_textures.textures_names->name);
 		free(g_textures.textures_names);
-		g_textures.textures_names = g_textures.textures_names->next;
+		g_textures.textures_names = next_name;
 	}
 }
 

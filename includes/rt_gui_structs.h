@@ -51,6 +51,8 @@ typedef enum			e_state
 	hidden
 }						t_state;
 
+struct					s_rt;
+
 typedef	struct			s_transform
 {
 	SDL_Rect			rect;
@@ -59,7 +61,8 @@ typedef	struct			s_transform
 	char				text[100];
 	char				*field;
 	t_btn				action;
-	bool				(*callback)();
+	bool				(*callback)(struct s_transform *btn,
+							SDL_Event *event, struct s_rt *rt);
 	t_state				state;
 	uint16_t			type;
 	bool				focus;
@@ -84,6 +87,7 @@ typedef struct			s_gui
 	SDL_Surface			*surface;
 	enum e_button		render_algo;
 	enum e_button		panel;
+	int					option_row_h;
 }						t_gui;
 
 #endif

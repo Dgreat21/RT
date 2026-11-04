@@ -8,6 +8,15 @@
 
 # define M_PI_360 0.00872664625997
 
+/*
+**	M_PI is a double constant that OpenCL C only guarantees when cl_khr_fp64
+**	is supported (Apple Silicon GPUs have no fp64), so fall back to float.
+*/
+
+# ifndef M_PI
+#  define M_PI M_PI_F
+# endif
+
 # define LAMBERT_ALPHA 1.f
 
 

@@ -16,24 +16,45 @@
 #include "rt_opencl.h"
 #include "rt_window_params.h"
 
+/*
+**	The tools window follows the render window, in one direction only.
+**	Moving each window after the other one moved made a feedback loop on
+**	macOS (SDL3 moves windows asynchronously and the system pushes the tools
+**	window back on screen), so both windows kept jumping. The tools window is
+**	also kept inside the display, so the system has no reason to move it.
+*/
+
+static void	rt_attach_gui_window(void)
+{
+	SDL_Rect	main_win;
+	SDL_Rect	usable;
+	int			gui_w;
+	int			gui_x;
+
+	SDL_GetWindowPosition(g_sdl.win, &main_win.x, &main_win.y);
+	SDL_GetWindowSize(g_sdl.win, &main_win.w, &main_win.h);
+	SDL_GetWindowSize(g_gui.win_tool, &gui_w, NULL);
+	gui_x = main_win.x + main_win.w;
+	if (SDL_GetDisplayUsableBounds(SDL_GetWindowDisplayIndex(g_sdl.win),
+			&usable) == 0 && gui_x + gui_w > usable.x + usable.w)
+		gui_x = usable.x + usable.w - gui_w;
+	SDL_SetWindowPosition(g_gui.win_tool, gui_x, main_win.y);
+}
+
 bool		rt_handle_window_event(SDL_Event *event, t_rt *rt)
 {
 	SDL_Rect win;
 
-	SDL_GetWindowSize(g_sdl.win, &win.w, &win.h);
-	if (event->window.event == SDL_WINDOWEVENT_MOVED)
+	if (event->type != SDL_WINDOWEVENT)
+		return (false);
+	if (event->window.event == SDL_WINDOWEVENT_MOVED
+		&& event->window.windowID == RT_WIN_ID)
+		rt_attach_gui_window();
+	if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED
+		&& event->window.windowID == RT_WIN_ID)
 	{
-		if (event->window.windowID == RT_WIN_ID)
-			SDL_SetWindowPosition(g_gui.win_tool,
-					win.w + event->window.data1, event->window.data2);
-		else if (event->window.windowID == GUI_WIN_ID)
-			SDL_SetWindowPosition(g_sdl.win, event->window.data1 - win.w,
-					event->window.data2);
-	}
-	if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-	{
-		SDL_GetWindowPosition(g_sdl.win, &win.x, &win.y);
-		SDL_SetWindowPosition(g_gui.win_tool, win.x + win.w, win.y);
+		rt_attach_gui_window();
+		SDL_GetWindowSize(g_sdl.win, &win.w, &win.h);
 		rt->scene.camera.viewport_width = (float)win.w / (float)win.h;
 		rt->scene.camera.viewport_height = 1;
 		return (true);
@@ -71,10 +92,10 @@ static bool	handle_all_events(t_rt *rt, SDL_Event *events, int events_num)
 	i = 0;
 	while (i < events_num)
 	{
-		key_event_handled = rt_handle_key_event(&events[i], rt);
-		mouse_event_handled = rt_handle_mouse_event(&events[i], rt);
-		gui_event_handled = rt_handle_event_gui(&events[i], rt);
-		window_event_handled = rt_handle_window_event(&events[i], rt);
+		key_event_handled |= rt_handle_key_event(&events[i], rt);
+		mouse_event_handled |= rt_handle_mouse_event(&events[i], rt);
+		gui_event_handled |= rt_handle_event_gui(&events[i], rt);
+		window_event_handled |= rt_handle_window_event(&events[i], rt);
 		i++;
 	}
 	return (key_event_handled | mouse_event_handled

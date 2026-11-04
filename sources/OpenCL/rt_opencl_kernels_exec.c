@@ -23,8 +23,6 @@ void		exec_render_kernel(
 {
 	int			err;
 
-	rt_update_render_params(render_kernel, &rt->params, rt->render_options,
-			rt->render_actions);
 	set_render_kernel_args(render_kernel);
 	if (rt_bit_isset(rt->events, EVENT_INFO))
 		rt_print_debug_info(rt, render_kernel);

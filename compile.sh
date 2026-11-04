@@ -12,20 +12,27 @@
 #  exit 1
 #fi
 
-if [[ ! -f "libft/Makefile" ]]; then
-  git submodule init
-  git submodule update --merge --remote
+# pinned submodule commits (not --remote: upstream master may not build)
+if [[ ! -f "libft/Makefile" || ! -f "lib/jansson/CMakeLists.txt" ]]; then
+  git submodule update --init
 fi
+# -fcommon: libft/ft_printf define the global `g_pf` in a header; modern clang
+# defaults to -fno-common and the final link fails with a duplicate symbol.
 cd libft || echo "can't find libft directory!"
-make
+make COMP="clang -Wall -Wextra -Werror -O2 -fPIC -fcommon -I ./includes" \
+  FLAGS="-Wall -Wextra -Werror -O2 -fPIC -fcommon"
 cd ..
 
-if [[ ! -f "lib/jansson/Makefile" ]]; then
-  cd lib/jansson/ || echo "need to init submodule of jansson!"
-  mkdir "build"
-  cd build || echo "can't make build directory"
-  cmake ..
-  make jansson/fast -j 4
+# CMAKE_POLICY_VERSION_MINIMUM: jansson requires CMake 3.1, which CMake >= 4.0
+# (current Homebrew) refuses to configure without this flag.
+if [[ ! -f "lib/jansson/build/lib/libjansson.a" ]]; then
+  cmake -S lib/jansson -B lib/jansson/build \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+    -DJANSSON_BUILD_DOCS=OFF \
+    -DJANSSON_EXAMPLES=OFF \
+    -DJANSSON_WITHOUT_TESTS=ON
+  cmake --build lib/jansson/build --target jansson -j 4
 fi
 
 #cdmkdir build

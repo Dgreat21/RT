@@ -55,7 +55,7 @@ void		init_render_options_button(u_int32_t options)
 	SDL_Rect	rect;
 
 	rect = (SDL_Rect){.x = FIRST_COL_X, .y = MSH_Y,
-			.h = BTN_BIG_SIZE, .w = HALF_GUI};
+			.h = OPTION_ROW_H, .w = HALF_GUI};
 	g_gui.obj[msh_btn] = (t_transform){ .rect = rect, .bit = RENDER_MESH,
 			.state = options & RENDER_MESH, .text = MESHES_LABEL,
 			.action = msh_btn, .callback = button_callback, .type = MESHES_BTN,
@@ -83,7 +83,7 @@ void		init_render_states_button(u_int32_t states)
 	SDL_Rect	rect;
 
 	rect = (SDL_Rect){.x = SECOND_COL_X, .y = DOF_Y,
-			.h = BTN_BIG_SIZE, .w = HALF_GUI};
+			.h = OPTION_ROW_H, .w = HALF_GUI};
 	g_gui.obj[blur_btn] = (t_transform){ .rect = rect, .text = BLUR_LABEL,
 			.state = states & STATE_POSTPROCESS_DOF,
 			.bit = STATE_POSTPROCESS_DOF,

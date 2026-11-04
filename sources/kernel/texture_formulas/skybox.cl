@@ -4,9 +4,9 @@ float3		skybox_color(
 		float3 normal)
 {
 	float3	color;
-	double	u;
+	float	u;
 	int		x;
-	double	v;
+	float	v;
 	int		y;
 	int		coord;
 
@@ -16,7 +16,7 @@ float3		skybox_color(
 	u *= M_1_PI_F / 2;
 	x = (int)((skybox_info->width - 1) * u);
 	x = check_borders(x, skybox_info->width - 1, 0);
-	v = 0.5 - asin(normal.y) * M_1_PI_F;
+	v = 0.5f - asin(normal.y) * M_1_PI_F;
 	y = (int)(v * (skybox_info->height - 1));
 	y = check_borders(y, skybox_info->height - 1, 0);
 	coord = x + y * skybox_info->width;

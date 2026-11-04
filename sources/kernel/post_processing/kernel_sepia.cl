@@ -9,6 +9,7 @@
 
 #include "color_utils.cl"
 #include "utils.cl"
+#include "math_utils.cl"
 
 __kernel void	kernel_sepia(
 		__global const int *img_data,

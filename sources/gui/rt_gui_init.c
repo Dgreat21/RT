@@ -65,12 +65,13 @@ void		init_gui(uint32_t options, uint32_t states, t_scene scene)
 		rt_raise_error(GET_SURFACE_TROUBLE);
 	fill_surfaces();
 	create_title();
+	init_gui_layout();
 	init_algo_buttons();
 	init_object_panel();
 	init_other_buttons();
 	init_render_options_button(options);
 	init_render_states_button(states);
 	init_text_box(scene);
-	render_all_buttons(scene);
+	render_all_buttons();
 	SDL_UpdateWindowSurface(g_gui.win_tool);
 }

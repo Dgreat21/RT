@@ -92,6 +92,7 @@ float	distan(float3 surface_point, __global const t_object *obj)
 		return dist_round_cone(surface_point, obj);
 		break;
 	}
+	return (RAY_MARCH_MAX_DIST);
 }
 
 bool		ray_march_hit(t_ray *ray,
