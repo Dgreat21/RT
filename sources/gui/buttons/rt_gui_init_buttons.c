@@ -35,14 +35,35 @@ void		init_algo_buttons(void)
 		g_gui.obj[rt_btn].state = click;
 }
 
+/*
+**	On a small screen the tools window is shorter than WIN_HEIGHT, so the
+**	option rows shrink to fit together with the screenshot button below them.
+*/
+
+void		init_gui_layout(void)
+{
+	int			gui_height;
+
+	SDL_GetWindowSize(g_gui.win_tool, NULL, &gui_height);
+	g_gui.option_row_h = (gui_height - OPTIONS_BLOCK) / (OPTION_ROWS + 1);
+	if (g_gui.option_row_h > BTN_BIG_SIZE)
+		g_gui.option_row_h = BTN_BIG_SIZE;
+}
+
 void		init_other_buttons(void)
 {
 	SDL_Rect	rect;
 	int			gui_height;
+	int			options_end;
 
 	SDL_GetWindowSize(g_gui.win_tool, NULL, &gui_height);
+	options_end = OPTIONS_BLOCK + OPTION_ROWS * OPTION_ROW_H;
 	rect = (SDL_Rect){.x = 0, .y = gui_height - GUI_FOOTER,
 			.h = 100, .w = WIN_GUI_WIDTH};
+	if (rect.y < options_end)
+		rect.y = options_end;
+	if (rect.h > gui_height - rect.y)
+		rect.h = gui_height - rect.y;
 	g_gui.obj[scr_sbtn] = (t_transform){ .rect = rect,
 			.state = non_event, .text = SCREENSHOT_LABEL, .action = scr_sbtn,
 			.callback = button_callback, .type = SCREENSHOT,

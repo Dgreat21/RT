@@ -65,6 +65,7 @@ void		init_gui(uint32_t options, uint32_t states, t_scene scene)
 		rt_raise_error(GET_SURFACE_TROUBLE);
 	fill_surfaces();
 	create_title();
+	init_gui_layout();
 	init_algo_buttons();
 	init_object_panel();
 	init_other_buttons();

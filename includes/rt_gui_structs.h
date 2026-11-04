@@ -87,6 +87,7 @@ typedef struct			s_gui
 	SDL_Surface			*surface;
 	enum e_button		render_algo;
 	enum e_button		panel;
+	int					option_row_h;
 }						t_gui;
 
 #endif

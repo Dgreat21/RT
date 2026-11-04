@@ -43,6 +43,7 @@ void			render_rect(SDL_Surface *sur, SDL_Rect *rect, SDL_Color col);
 ** Buttons init
 */
 
+void			init_gui_layout(void);
 void			init_algo_buttons(void);
 void			init_other_buttons(void);
 void			init_render_options_button(u_int32_t options);
