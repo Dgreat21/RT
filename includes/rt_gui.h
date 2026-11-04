@@ -64,7 +64,7 @@ void			fix_states(short action);
 
 bool			check_click(SDL_Event *event, SDL_Rect button);
 bool			check_hover(SDL_Event *event, SDL_Rect button);
-void			render_all_buttons();
+void			render_all_buttons(void);
 
 /*
 ** Buttons actions

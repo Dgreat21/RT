@@ -30,4 +30,10 @@
 # define SCALE_WIDTH 1
 # define SCALE_HEIGHT 1
 
+/*
+**	space reserved for the window title bar when fitting windows to the screen
+*/
+
+# define WIN_TITLE_BAR_HEIGHT 30
+
 #endif

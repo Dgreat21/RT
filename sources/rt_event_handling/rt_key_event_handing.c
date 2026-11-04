@@ -60,7 +60,8 @@ void					sync_rt_and_gui(t_scene scene,
 	g_gui.obj[render_num].state = click;
 	render_button(g_gui.obj[render_num]);
 	sync_options_buttons(options, states);
-	render_all_buttons(scene);
+	(void)scene;
+	render_all_buttons();
 	SDL_UpdateWindowSurface(g_gui.win_tool);
 }
 

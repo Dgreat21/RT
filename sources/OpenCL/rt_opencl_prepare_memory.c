@@ -16,7 +16,7 @@
 t_opencl_mem_obj	rt_check_opencl_memobj(t_opencl_mem_obj mem_obj)
 {
 	t_opencl_mem_obj	checked_mem_obj;
-	cl_char				dummy_ptr;
+	static cl_char		dummy_ptr;
 
 	if (mem_obj.ptr || !(mem_obj.mem_flags & CL_MEM_COPY_HOST_PTR))
 		return (mem_obj);

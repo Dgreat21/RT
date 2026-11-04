@@ -126,6 +126,7 @@ SOURCES_FILES =					\
 # ============================================================================ #
 
 OS := $(shell uname)
+ARCH := $(shell uname -m)
 
 NAME =							\
 	RT
@@ -146,59 +147,83 @@ SOURCES_OBJ = $(addprefix $(OBJ_DIR), $(SOURCES_FILES:.c=.o))
 
 CC = clang
 
-CFLAGS = -Wall -Wextra -Werror -O2
+# `make WERROR=` builds without -Werror (useful with a newer compiler)
+WERROR ?= -Werror
+
+CFLAGS = -Wall -Wextra $(WERROR) -O2
 
 RT_INCLUDES =						\
 	-I ./includes/				\
     -I ./includes/external		\
 
-ifeq ($(OS), Linux)
-SDL2_INCL = $(shell sdl2-config --cflags)
-else
-SDL2_INCL = -I ./lib/SDL2_libs/SDL2.framework/Headers
-endif
+# ---------------------------------------------------------------------------- #
+# SDL2 / SDL2_ttf / OpenCL
+#
+# Linux: system packages (sdl2-config + libSDL2_ttf + libOpenCL).
+# macOS: Homebrew `brew install sdl2 sdl2_ttf` (native arm64 on Apple Silicon,
+#        sdl2 is provided by sdl2-compat) + the system OpenCL.framework.
+#        The frameworks bundled in lib/SDL2_libs are x86_64-only, so they are
+#        used only as a fallback on Intel Macs without Homebrew SDL2.
+# ---------------------------------------------------------------------------- #
 
-ifeq ($(OS), Linux)
+SDL2_CONFIG ?= sdl2-config
+HAVE_SDL2_CONFIG := $(shell command -v $(SDL2_CONFIG) 2>/dev/null)
+
+ifeq ($(OS), Darwin)
+PLATFORM_DEFINES = -DCL_SILENCE_DEPRECATION
+ifneq ($(HAVE_SDL2_CONFIG),)
+SDL2_INCL = $(shell $(SDL2_CONFIG) --cflags)
 SDL2_TTF_INCL =
-else
-SDL2_TTF_INCL = -I ./lib/SDL2_libs/SDL2_ttf.framework/Headers
-endif
-
-INCLUDES = $(RT_INCLUDES) -I $(LIBFT_INCL) $(SDL2_INCL) $(SDL2_TTF_INCL)
-
-ifeq ($(OS), Linux)
-FRAMEWORKS = $(shell sdl2-config --libs) -lSDL2_ttf
-else
+FRAMEWORKS = $(shell $(SDL2_CONFIG) --libs) -lSDL2_ttf -framework OpenCL
+else ifeq ($(ARCH), x86_64)
 FRW = lib/SDL2_libs
-SDL2_FW = $(FRW)SDL2.framework/
-TTF_FW = $(FRW)SDL2_ttf.framework/
+SDL2_INCL = -I $(FRW)/SDL2.framework/Headers
+SDL2_TTF_INCL = -I $(FRW)/SDL2_ttf.framework/Headers
 FRAMEWORKS = -framework OpenCL -F $(FRW) -rpath $(FRW) -framework SDL2 -framework SDL2_ttf
-endif
-
-ifeq ($(OS), Linux)
-OPENCL_LIB = -lOpenCL
 else
-OPENCL_LIB = ""
+SDL2_MISSING = SDL2 not found: run `brew install sdl2 sdl2_ttf` (lib/SDL2_libs is x86_64-only and cannot be linked on $(ARCH))
+SDL2_INCL = $(error $(SDL2_MISSING))
+FRAMEWORKS = $(error $(SDL2_MISSING))
+endif
+OPENCL_LIB =
+else
+PLATFORM_DEFINES =
+SDL2_INCL = $(shell $(SDL2_CONFIG) --cflags)
+SDL2_TTF_INCL =
+FRAMEWORKS = $(shell $(SDL2_CONFIG) --libs) -lSDL2_ttf
+OPENCL_LIB = -lOpenCL
 endif
 
-JANSSON_LIB = -L ./lib/jansson/build/lib/ -ljansson
+INCLUDES = $(RT_INCLUDES) -I $(LIBFT_INCL) $(SDL2_INCL) $(SDL2_TTF_INCL) $(PLATFORM_DEFINES)
+
+JANSSON_DIR = ./lib/jansson
+JANSSON_LIB_FILE = $(JANSSON_DIR)/build/lib/libjansson.a
+JANSSON_LIB = -L $(JANSSON_DIR)/build/lib/ -ljansson
+
+# CMAKE_POLICY_VERSION_MINIMUM: jansson 2.13 requires CMake 3.1, which
+# CMake >= 4.0 (current Homebrew) refuses to configure without it.
+JANSSON_CMAKE_FLAGS =					\
+	-DCMAKE_BUILD_TYPE=Release			\
+	-DCMAKE_POLICY_VERSION_MINIMUM=3.5	\
+	-DJANSSON_BUILD_DOCS=OFF			\
+	-DJANSSON_EXAMPLES=OFF				\
+	-DJANSSON_WITHOUT_TESTS=ON
 
 RT_LIBS = -L $(FT_PRINTF) -lftprintf -L $(LIBFT_DIR) -lft  $(FRAMEWORKS) -lm $(OPENCL_LIB) $(JANSSON_LIB)
 
-all : update $(NAME)
+# sequential on purpose: submodules must exist before anything is built
+all :
+	@$(MAKE) --no-print-directory update
+	@$(MAKE) --no-print-directory $(NAME)
 
 update:
-	@git submodule init
-	@git submodule update
-	{ \
-        cd lib/jansson/ ;\
-        mkdir build ;\
-        cd build ;\
-        cmake .. ;\
-        make jansson/fast -j 4 ;\
-    }
+	@git submodule update --init
 
-$(NAME) : $(LIBFT) $(D_OBJ) $(OBJ_RT)
+$(JANSSON_LIB_FILE):
+	cmake -S $(JANSSON_DIR) -B $(JANSSON_DIR)/build $(JANSSON_CMAKE_FLAGS)
+	cmake --build $(JANSSON_DIR)/build --target jansson -j 4
+
+$(NAME) : $(LIBFT) $(JANSSON_LIB_FILE) $(D_OBJ) $(OBJ_RT)
 	$(CC) $(CFLAGS) $(OBJ_RT) $(RT_LIBS) -o $(NAME)
 
 $(D_OBJ):
@@ -209,13 +234,15 @@ $(D_OBJ)%.o: $(D_SRC)%.c
 
 clean :
 	@rm -rf $(D_OBJ)
-	@make clean -C $(LIBFT_DIR)
+	@$(MAKE) clean -C $(LIBFT_DIR)
 
 fclean : clean
 	@rm -rf $(NAME)
-	@make fclean -C $(LIBFT_DIR)
+	@$(MAKE) fclean -C $(LIBFT_DIR)
 
 re : fclean $(NAME)
+
+.PHONY : all update clean fclean re
 
 # ============================================================================ #
 # 						LIBFT
@@ -227,6 +254,14 @@ LIBFT_DIR =				\
 LIBFT_INCL = 			\
 	./libft/includes/	\
 
+# libft/ft_printf define the global `g_pf` in a header (a tentative
+# definition in several objects). Modern clang (LLVM >= 11, incl. Apple clang)
+# defaults to -fno-common, which turns that into a duplicate-symbol link error,
+# so the submodule is built with -fcommon (its own Makefiles hardcode flags).
+LIBFT_MAKE_FLAGS =												\
+	COMP="clang -Wall -Wextra $(WERROR) -O2 -fPIC -fcommon -I ./includes"	\
+	FLAGS="-Wall -Wextra $(WERROR) -O2 -fPIC -fcommon"
+
 $(LIBFT) :
-	@make -C $(LIBFT_DIR)
-	@make printf -C $(LIBFT_DIR)
+	@$(MAKE) -C $(LIBFT_DIR) $(LIBFT_MAKE_FLAGS)
+	@$(MAKE) printf -C $(LIBFT_DIR) $(LIBFT_MAKE_FLAGS)

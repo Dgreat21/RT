@@ -5,7 +5,11 @@ set(CMAKE_C_STANDARD 11)
 
 add_compile_options(-Wall -Wextra)
 
-if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options(-O2)
 endif()
 
@@ -164,15 +168,24 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
             SDL2_ttf
             OpenCL)
 
-else()
+elseif (APPLE)
+    # Homebrew: `brew install sdl2 sdl2_ttf pkgconf` (native arm64 on Apple
+    # Silicon). lib/SDL2_libs contains x86_64-only frameworks and is not used.
+    add_compile_definitions(CL_SILENCE_DEPRECATION)
+
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(SDL2 REQUIRED sdl2 SDL2_ttf)
+    find_package(OpenCL REQUIRED)
+
     set(graphic_libs_include_dirs
-            lib/SDL2_libs/SDL2.framework/Headers
-            lib/SDL2_libs/SDL2_ttf.framework/Headers)
+            ${SDL2_INCLUDE_DIRS})
     set(graphic_libs_dirs
-            lib/SDL2_libs/)
+            ${SDL2_LIBRARY_DIRS})
     set(graphic_libs_link_names
-            "-F ${PROJECT_SOURCE_DIR}/lib/SDL2_libs -framework SDL2 -framework SDL2_ttf"
-            "-framework OpenCL")
+            ${SDL2_LIBRARIES}
+            ${OpenCL_LIBRARIES})
+else()
+    message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
 endif()
 
 message("graphic_libs_include_dirs: " ${graphic_libs_include_dirs})

@@ -86,7 +86,7 @@ void			rt_switch_bit(uint32_t *bitfield, uint32_t target);
 */
 
 void			rt_sdl_init(void);
-void			rt_textures_init();
+void			rt_textures_init(void);
 void			rt_skybox_init(void);
 
 /*

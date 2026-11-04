@@ -82,7 +82,8 @@ void		add_directory(json_t *value)
 
 	i = 0;
 	array_size = json_array_size(value);
-	g_textures.folders_names = rt_safe_malloc(array_size);
+	g_textures.folders_names = rt_safe_malloc(
+			sizeof(char *) * (array_size + 1));
 	while (i < array_size)
 	{
 		g_textures.folders_names[i] =

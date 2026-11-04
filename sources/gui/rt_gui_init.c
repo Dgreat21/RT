@@ -71,6 +71,6 @@ void		init_gui(uint32_t options, uint32_t states, t_scene scene)
 	init_render_options_button(options);
 	init_render_states_button(states);
 	init_text_box(scene);
-	render_all_buttons(scene);
+	render_all_buttons();
 	SDL_UpdateWindowSurface(g_gui.win_tool);
 }

@@ -49,7 +49,7 @@ bool		rt_handle_event_gui(SDL_Event *event, t_rt *rt)
 	}
 	if (now != g_gui.render_algo || panel != g_gui.panel ||
 		handle_movement(rt->scene))
-		render_all_buttons(rt->scene);
+		render_all_buttons();
 	SDL_UpdateWindowSurface(g_gui.win_tool);
 	return (event_handled);
 }

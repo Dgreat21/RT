@@ -38,8 +38,10 @@ void		init_algo_buttons(void)
 void		init_other_buttons(void)
 {
 	SDL_Rect	rect;
+	int			gui_height;
 
-	rect = (SDL_Rect){.x = 0, .y = WIN_HEIGHT - GUI_FOOTER,
+	SDL_GetWindowSize(g_gui.win_tool, NULL, &gui_height);
+	rect = (SDL_Rect){.x = 0, .y = gui_height - GUI_FOOTER,
 			.h = 100, .w = WIN_GUI_WIDTH};
 	g_gui.obj[scr_sbtn] = (t_transform){ .rect = rect,
 			.state = non_event, .text = SCREENSHOT_LABEL, .action = scr_sbtn,
