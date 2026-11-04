@@ -14,6 +14,11 @@
 #include "rt_opencl.h"
 #include "rt_events.h"
 
+/*
+**	Only path tracing renders without events (it keeps accumulating samples),
+**	so in the other modes wait for an event instead of spinning a CPU core.
+*/
+
 void		rt_loop(t_rt *rt)
 {
 	SDL_Event		events[MAX_EVENT_IN_LIST];
@@ -24,6 +29,8 @@ void		rt_loop(t_rt *rt)
 	quit = false;
 	while (!quit)
 	{
+		if (!rt_bit_isset(rt->render_options, RENDER_PATHTRACE))
+			SDL_WaitEvent(NULL);
 		while (event_num < MAX_EVENT_IN_LIST
 			&& SDL_PollEvent(&events[event_num]))
 		{
