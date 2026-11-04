@@ -46,8 +46,13 @@
 ** Sdl gui
 */
 
-# define RT_WIN_ID 1
-# define GUI_WIN_ID 2
+/*
+**	Window ids must be queried: SDL3 (Homebrew `sdl2` is sdl2-compat) shares
+**	one id counter between displays and windows, so they are not 1 and 2.
+*/
+
+# define RT_WIN_ID SDL_GetWindowID(g_sdl.win)
+# define GUI_WIN_ID SDL_GetWindowID(g_gui.win_tool)
 
 # define BMP 1
 # define JPG 2

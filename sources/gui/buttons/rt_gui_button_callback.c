@@ -63,16 +63,17 @@ bool		handle_textbox(t_transform *btn, SDL_Event *event)
 	return (false);
 }
 
+/*
+**	The bit was toggled, so the button must be redrawn and the scene
+**	re-rendered right away (returning false here left the click invisible
+**	until the next mouse motion, e.g. after a trackpad tap).
+*/
+
 bool		gui_switch_bit(uint32_t *options, t_transform *btn)
 {
-	t_state tmp;
-
-	tmp = btn->state;
 	rt_switch_bit(options, btn->bit);
 	btn->state = (*options & btn->bit) ? (click) : (non_event);
-	if (tmp == btn->state)
-		return (true);
-	return (false);
+	return (true);
 }
 
 bool		handle_option(t_transform *btn, SDL_Event *event, t_rt *rt)

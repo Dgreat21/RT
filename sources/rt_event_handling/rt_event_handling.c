@@ -71,10 +71,10 @@ static bool	handle_all_events(t_rt *rt, SDL_Event *events, int events_num)
 	i = 0;
 	while (i < events_num)
 	{
-		key_event_handled = rt_handle_key_event(&events[i], rt);
-		mouse_event_handled = rt_handle_mouse_event(&events[i], rt);
-		gui_event_handled = rt_handle_event_gui(&events[i], rt);
-		window_event_handled = rt_handle_window_event(&events[i], rt);
+		key_event_handled |= rt_handle_key_event(&events[i], rt);
+		mouse_event_handled |= rt_handle_mouse_event(&events[i], rt);
+		gui_event_handled |= rt_handle_event_gui(&events[i], rt);
+		window_event_handled |= rt_handle_window_event(&events[i], rt);
 		i++;
 	}
 	return (key_event_handled | mouse_event_handled

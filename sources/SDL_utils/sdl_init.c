@@ -53,6 +53,7 @@ void		rt_sdl_init(void)
 	SDL_Rect	main_win;
 	SDL_Rect	gui_win;
 
+	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 	if (SDL_Init(SDL_INIT_EVERYTHING))
 		rt_raise_error(ERR_SDL_INIT);
 	rt_fit_windows_to_display(&main_win, &gui_win);

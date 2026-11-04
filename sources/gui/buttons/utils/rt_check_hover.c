@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "rt.h"
 #include "rt_gui.h"
 
 bool		check_hover(SDL_Event *event, SDL_Rect button)

@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "rt.h"
 #include "rt_gui.h"
 
 bool		check_click(SDL_Event *event, SDL_Rect button)
